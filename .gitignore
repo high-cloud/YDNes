@@ -3,4 +3,8 @@
 *.depend
 *.kdev4
 .kdev*
+*.nes
+*.log
 build/
+.vscode/
+.vscode/settings.json
