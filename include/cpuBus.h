@@ -12,6 +12,9 @@ namespace yn
         CpuBus();
         Byte read(Address addr);
         void write(Address addr, Byte value);
+
+    private:
+        Byte internalRam[0x800];
     };
 } // namespace yn
 #endif // __CPUBUS_H__

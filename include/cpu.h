@@ -2,8 +2,8 @@
 #define __CPU_H__
 
 #include "constant.h"
-#include "cpuBus.h"
 #include "cpuOpcode.h"
+#include "cpuBus.h"
 
 namespace yn
 {
@@ -26,11 +26,15 @@ namespace yn
         void step();
 
     private:
+        bool executeType0(Byte opcode);
         bool executeType1(Byte opcode);
         bool executeImplied(Byte opcode);
         bool executeBranch(Byte opcode);
+        bool executeType2(Byte opcode);
 
-        void pushStack(Byte value);
+
+
+            void pushStack(Byte value);
         Byte popStack();
 
         // if a b in different page, skipCycles+=inc
