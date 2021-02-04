@@ -81,7 +81,7 @@ namespace yn
         if ((opcode & InstructionTypeMask) == 0x0)
         {
             AddrMode2 addrMode = static_cast<AddrMode2>((opcode & AddrModeMask) >> AddrModeShift);
-            auto op = static_cast<Operation0>((opcode & OperationMask) >> OperationShift);
+            auto op = static_cast<Operation2>((opcode & OperationMask) >> OperationShift);
 
             Address location = 0;
             switch (addrMode)

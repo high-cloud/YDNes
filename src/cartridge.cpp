@@ -99,4 +99,28 @@ namespace yn
         return true;
     }
 
+    bool Cartridge::hasExtendedRAM()
+    {
+        return m_extendedRAM;
+    }
+
+    const std::vector<Byte> &Cartridge::getROM()
+    {
+        return m_PGR_ROM;
+    }
+    const std::vector<Byte> &Cartridge::getVROM()
+    {
+        return m_CHR_ROM;
+    }
+    
+    Byte Cartridge::getMapperNumber() 
+    {
+        return m_mapperNumber;
+    }
+    
+    Byte Cartridge::getNameTableMirroring() 
+    {
+        return m_nameTableMirroring;
+    }
+
 } // namespace yn

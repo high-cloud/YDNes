@@ -21,7 +21,12 @@ namespace yn
     public:
         Cartridge();
         bool loadFromFile(std::string path);
+        bool hasExtendedRAM();
+        const std::vector<Byte> &getROM();
+        const std::vector<Byte> &getVROM();
+        Byte getMapperNumber();
+        Byte getNameTableMirroring();
     };
 
-} // namespace yd
+} // namespace yn
 #endif // __Cartridge_H__
