@@ -55,7 +55,7 @@ namespace yn
         LOG(Info) << "Name Table Mirroring: " << +m_nameTableMirroring << std::endl;
 
         m_mapperNumber = ((header[6] >> 4) & 0xF) | (header[7] & 0xf0);
-        LOG(Info) << "Mapper number: " << m_mapperNumber << std::endl;
+        LOG(Info) << "Mapper number: " << std::hex << +m_mapperNumber << std::endl;
 
         m_extendedRAM = header[6] & 0x2;
         LOG(Info) << "Extended RAM: " << std::boolalpha << m_extendedRAM << std::endl;
@@ -112,13 +112,13 @@ namespace yn
     {
         return m_CHR_ROM;
     }
-    
-    Byte Cartridge::getMapperNumber() 
+
+    Byte Cartridge::getMapperNumber()
     {
         return m_mapperNumber;
     }
-    
-    Byte Cartridge::getNameTableMirroring() 
+
+    Byte Cartridge::getNameTableMirroring()
     {
         return m_nameTableMirroring;
     }

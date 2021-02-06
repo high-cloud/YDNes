@@ -23,7 +23,8 @@ namespace yn
     void Cpu::reset(Address addr)
     {
         r_A = r_X = r_Y = 0;
-        m_cycles = m_skipCycles = 0;
+        m_cycles = 0;
+        m_skipCycles = 8;
         f_I = true;
         f_C = f_D = f_N = f_N = f_V = false;
         r_PC = addr;
@@ -59,7 +60,7 @@ namespace yn
                 << "Y:" << std::setw(2) << +r_Y << " "
                 << "P:" << std::setw(2) << r_p << " "
                 << "SP:" << std::setw(2) << +r_SP << /*std::endl;*/ " "
-                << "CYC:" << std::setw(3) << std::setfill(' ') << std::dec << ((m_cycles - 1) * 3) % 341
+                << "CYC:" << std::setw(3) << std::setfill(' ') << std::dec << (m_cycles - 1) 
                 << std::endl;
 
         Byte opcode = m_bus.read(r_PC++);
@@ -72,7 +73,7 @@ namespace yn
         }
         else
         {
-            LOG(Error) << "Can't recognise opcode." << std::hex << opcode << std::endl;
+            LOG(Error) << "Can't recognise opcode: " << std::hex << +opcode << std::endl;
         }
     }
 
@@ -295,7 +296,6 @@ namespace yn
         switch (opcode)
         {
         case NOP:
-            ++r_PC;
             break;
         case BRK:
             interrupt(BRK_);
@@ -659,7 +659,7 @@ namespace yn
 
     void Cpu::setPageCrossed(Address a, Address b, int inc)
     {
-        if ((a & 0x00ff) != (b & 0x00ff))
+        if ((a & 0xff00) != (b & 0xff00))
         {
             m_skipCycles += inc;
         }

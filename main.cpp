@@ -1,14 +1,15 @@
 #include "Log.h"
 #include "constant.h"
 #include <fstream>
-#include"cartridge.h"
+#include "emulator.h"
 
 using namespace yn;
 
-int main(int argc,char** argv)
+int main()
 {
-    std::ofstream logFile("ydNes.log");
+    std::ofstream logFile("ydNes.log", std::ios::trunc | std::ios::out);
     TeeStream logTee(std::cout, logFile);
+    std::ofstream cpuFile("cpuTrace.log", std::ios::trunc | std::ios::out);
 
     if (logFile.is_open() && logFile.good())
     {
@@ -19,19 +20,17 @@ int main(int argc,char** argv)
         Log::get().setLogStream(std::cout);
     }
 
-    Log::get().setLevel(Info);
+    if (cpuFile.is_open() && cpuFile.good())
+    {
+        Log::get().setTraceStream(cpuFile);
+    }
+
+    Log::get().setLevel(CpuTrace);
 
     LOG(Info) << "cann't do anything" << std::endl;
 
-    if(argc>1)
-    {
-        Cartridge rom;
-        rom.loadFromFile(argv[1]);
-    }
-    else
-    {
-        LOG(Info)<<"nothing happened."<<std::endl;
-    }
+    Emulator emulator;
+    emulator.run("D:/cpp_project/YDNes/nestest.nes");
 
     return 0;
 }

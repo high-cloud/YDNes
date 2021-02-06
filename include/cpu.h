@@ -2,7 +2,6 @@
 #define __CPU_H__
 
 #include "constant.h"
-#include "cpuOpcode.h"
 #include "cpuBus.h"
 
 namespace yn

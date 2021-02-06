@@ -6,7 +6,7 @@
 namespace yn
 {
     using Byte = std::uint8_t;
-    using Address = std::int16_t;
+    using Address = std::uint16_t;
 } // namespace yd
 
 #endif // __CONSTANT_H__

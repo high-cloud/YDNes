@@ -11,10 +11,10 @@ namespace yn
     class Cartridge
     {
     private:
-        Byte m_mapperNumber;
-        Byte m_nameTableMirroring;
         std::vector<Byte> m_PGR_ROM;
         std::vector<Byte> m_CHR_ROM;
+        Byte m_nameTableMirroring;
+        Byte m_mapperNumber;
         bool m_extendedRAM;
         bool m_chrRAM;
 

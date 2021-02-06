@@ -3,7 +3,7 @@
 
 namespace yn
 {
-    Mapper::Mapper(Cartridge cartridge, Type type)
+    Mapper::Mapper(Cartridge &cartridge, Type type)
         : m_cartrige(cartridge), m_type(type)
     {
     }

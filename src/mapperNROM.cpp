@@ -50,7 +50,7 @@ namespace yn
             }
             else
             {
-                return m_cartrige.getROM()[addr - 0x3fff];
+                return m_cartrige.getROM()[addr - 0x8000];
             }
         }
         else
