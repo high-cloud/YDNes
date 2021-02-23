@@ -99,4 +99,24 @@ namespace yn
         return true;
     }
 
+    bool CpuBus::setWriteCallback(IORegister reg, std::function<void(Byte)> callback)
+    {
+        if (!callback)
+        {
+            LOG(Error) << "callback argument is nullptr" << std::endl;
+            return false;
+        }
+        return m_writeCallbacks.emplace(reg, callback).second;
+    }
+
+    bool CpuBus::setReadCallback(IORegister reg, std::function<Byte(void)> callback)
+    {
+        if (!callback)
+        {
+            LOG(Error) << "callback argument is nullptr" << std::endl;
+            return false;
+        }
+        return m_readCallbacks.emplace(reg, callback).second;
+    }
+
 } // namespace yn

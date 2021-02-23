@@ -8,6 +8,11 @@ namespace yn
     {
     }
 
+    NameTableMirroring Mapper::getNameTableMirroring()
+    {
+        return NameTableMirroring(m_cartrige.getNameTableMirroring());
+    }
+
     std::unique_ptr<Mapper> Mapper::createMapper(Type type, Cartridge cartridge)
     {
         std::unique_ptr<Mapper> ret(nullptr);

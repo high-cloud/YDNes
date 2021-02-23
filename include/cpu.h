@@ -1,6 +1,7 @@
 #ifndef __CPU_H__
 #define __CPU_H__
 
+#include<map>
 #include "constant.h"
 #include "cpuBus.h"
 
@@ -63,6 +64,8 @@ namespace yn
         // cycle relate
         int m_cycles;
         int m_skipCycles;
+
+
     };
 } // namespace yn
 #endif // __CPU_H__
