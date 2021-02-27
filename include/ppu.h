@@ -24,6 +24,8 @@ namespace yn
         void step();
         void reset();
 
+        void setCallback(std::function<void(void)> callback);
+
         void doDMA(const Byte *page_ptr);
 
         void control(Byte ctrl);
@@ -48,7 +50,7 @@ namespace yn
         std::function<void(void)> m_vblankCallback;
 
         // status
-        bool m_vbank;
+        bool m_vblank;
         bool m_spZreoHit;
         bool m_spOverFlow;
         bool m_evenFrame;

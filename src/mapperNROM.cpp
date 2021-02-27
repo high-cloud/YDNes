@@ -71,12 +71,12 @@ namespace yn
             }
             else
             {
-                LOG(Info) << "attempt to write: " << std::hex << value << " at CHR ROM address: " << addr << std::endl;
+                LOG(Info) << "attempt to write: " << std::hex << +value << " at CHR ROM address: " << addr << std::endl;
             }
         }
         else if (addr > 0x8000)
         {
-            LOG(Info) << "attempt to write: " << std::hex << value << " at PGR ROM address: " << addr << std::endl;
+            LOG(Info) << "attempt to write: " << std::hex << +value << " at PGR ROM address: " << addr << std::endl;
         }
         else
         {

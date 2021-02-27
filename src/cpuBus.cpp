@@ -17,14 +17,29 @@ namespace yn
         else if (addr < 0x4000)
         {
             // ppu register and mirrors  (& 0x2007)
+            auto it = m_readCallbacks.find(static_cast<IORegister>(addr & 0x2007));
+            if (it != m_readCallbacks.end())
+            {
+                return (it->second)();
+            }
+            else
+                LOG(Info) << "NO read callback for IO register at " << std::hex << +addr << std::endl;
         }
         else if (addr < 0x4020)
         { // IO registers
+
+            auto it = m_readCallbacks.find(static_cast<IORegister>(addr));
+            if (it != m_readCallbacks.end())
+                return (it->second)();
+            //Second object is the pointer to the function object
+            //Dereference the function pointer and call it
+            else
+                LOG(Info) << "No read callback registered for I/O register at: " << std::hex << +addr << std::endl;
         }
         else if (addr < 0x6000)
         {
             // Expansion ROM
-            LOG(Error) << "not support expansion rom" << std::endl;
+            LOG(Error) << "havent realized expansion rom" << std::endl;
         }
         else if (addr < 0x8000)
         {
@@ -55,9 +70,23 @@ namespace yn
         else if (addr < 0x4000)
         {
             // ppu register and mirrors  (& 0x2007)
+            auto it = m_writeCallbacks.find(static_cast<IORegister>(addr & 0x2007));
+            if (it != m_writeCallbacks.end())
+            {
+                return (it->second)(value);
+            }
+            else
+                LOG(Info) << "NO write callback for IO register at " << std::hex << +addr << std::endl;
         }
         else if (addr < 0x4020)
         { // IO registers
+        auto it = m_writeCallbacks.find(static_cast<IORegister>(addr & 0x2007));
+            if (it != m_writeCallbacks.end())
+            {
+                return (it->second)(value);
+            }
+            else
+                LOG(Info) << "NO write callback for IO register at " << std::hex << +addr << std::endl;
         }
         else if (addr < 0x6000)
         {
@@ -117,6 +146,30 @@ namespace yn
             return false;
         }
         return m_readCallbacks.emplace(reg, callback).second;
+    }
+
+    Byte *CpuBus::getPagePtr(Byte page)
+    {
+        Address addr = page << 8;
+        if (addr < 0x2000)
+        {
+            return &m_internalRam[addr & 0x07ff];
+        }
+        else if (addr < 0x4020)
+        {
+            LOG(Error) << "Register address memory pointer access attempt" << std::endl;
+        }
+        else if (addr < 0x6000)
+        {
+            LOG(Error) << "Expansion ROM access attempted, which is unsupported" << std::endl;
+        }
+        else if (addr < 0x8000)
+        {
+            if (m_mapper->ifVRAM())
+            {
+                return &m_VRAM[addr - 0x6000];
+            }
+        }
     }
 
 } // namespace yn

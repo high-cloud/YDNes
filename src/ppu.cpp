@@ -1,6 +1,6 @@
 #include "ppu.h"
 #include "paletteColor.h"
-#include"Log.h"
+#include "Log.h"
 #include <array>
 
 namespace yn
@@ -18,8 +18,8 @@ namespace yn
         {
         case State::PreRender:
             if (m_cycle == 1)
-                m_vbank = m_spZreoHit = false;
-            else if (m_cycle = ScanlineVisibleDots + 2 && m_showBackground && m_showSprites)
+                m_vblank = m_spZreoHit = false;
+            else if (m_cycle == ScanlineVisibleDots + 2 && m_showBackground && m_showSprites)
             {
                 //set bits related to horizontal position
                 m_dataAddress &= ~0x041f;
@@ -32,7 +32,7 @@ namespace yn
                 m_dataAddress |= m_tempAddress & 0x7be0;
             }
 
-            if (m_cycle >= ScanlineEndCycle - (!m_evenFrame && m_showBackground))
+            if (m_cycle >= ScanlineEndCycle - (!m_evenFrame && m_showBackground && m_showSprites))
             {
                 m_pipelineState = State::Render;
                 m_cycle = m_scanline = 0;
@@ -68,10 +68,10 @@ namespace yn
                         bgOpaque = bgColor;
 
                         //fetch attribute and calculate higher two bits
-                        addr = 0x23c | (m_dataAddress & 0x0c00) | ((m_dataAddress >> 4) & 0x38) | ((m_dataAddress >> 2) & 0x07);
+                        addr = 0x23c0 | (m_dataAddress & 0x0c00) | ((m_dataAddress >> 4) & 0x38) | ((m_dataAddress >> 2) & 0x07);
                         auto attribute = read(addr);
                         int shift = ((m_dataAddress >> 4) & 4) | (m_dataAddress & 2);
-                        bgColor |= ((attribute > shift) & 0x3) << 2;
+                        bgColor |= ((attribute >> shift) & 0x3) << 2;
                     }
                     //increment coarse X
                     if (x_fine == 7)
@@ -120,12 +120,12 @@ namespace yn
                         else //long sprites
                         {
                             y_offset = (y_offset & 7) | ((y_offset & 8) << 1);
-                            addr = (tile >> 1) * 16 + y_offset;
+                            addr = (tile >> 1) * 32 + y_offset;
                             addr |= (tile & 1) << 12;
                         }
 
-                        sprColor = (read(addr) >> (7 ^ x_shift)) & 1;             //bit 0
-                        sprColor |= ((read(addr + 8) >> (7 ^ x_shift)) & 1) << 1; //bit 1
+                        sprColor = (read(addr) >> (x_shift)) & 1;             //bit 0
+                        sprColor |= ((read(addr + 8) >> (x_shift)) & 1) << 1; //bit 1
 
                         if (!(sprOpaque == sprColor))
                         {
@@ -165,10 +165,10 @@ namespace yn
                 {
                     m_dataAddress &= ~0x7000;
                     int y = (m_dataAddress & 0x03e0) >> 5; // let y = coarsey
-                    if (y = 29)
+                    if (y == 29)
                     {
                         y = 0;                   //coarse y=0
-                        m_dataAddress ^= 0x8000; //switch vertical nametable
+                        m_dataAddress ^= 0x0800; //switch vertical nametable
                     }
                     else if (y == 31)
                     {
@@ -181,7 +181,7 @@ namespace yn
                     m_dataAddress = (m_dataAddress & ~0x03e0) | (y << 5); // put coarse Y back into v
                 }
             }
-            else if (m_cycle == ScanlineVisibleDots + 2)
+            else if (m_cycle == ScanlineVisibleDots + 2&& m_showBackground && m_showSprites)
             {
                 //set bits related to horizontal position
                 m_dataAddress &= ~0x041f;
@@ -237,29 +237,28 @@ namespace yn
                 break;
             }
         case State::VerticalBlank:
-            if(m_cycle==1 && m_scanline==VisibleScanlines)
+            if (m_cycle == 1 && m_scanline == VisibleScanlines + 1)
             {
-                m_vbank=true;
-                if(m_generateInterrupt)
+                m_vblank = true;
+                if (m_generateInterrupt)
                     m_vblankCallback();
             }
 
-            if(m_cycle>=ScanlineEndCycle)
+            if (m_cycle >= ScanlineEndCycle)
             {
                 ++m_scanline;
-                m_cycle=0;
+                m_cycle = 0;
             }
 
-            if(m_scanline>=FrameEndScanline)
+            if (m_scanline >= FrameEndScanline)
             {
-                m_pipelineState=State::PreRender;
-                m_scanline=0;
-                m_evenFrame=!m_evenFrame;
+                m_pipelineState = State::PreRender;
+                m_scanline = 0;
+                m_evenFrame = !m_evenFrame;
             }
             break;
-            default:
-            LOG(Error)<<"oh, this should not happen"<<std::endl;
-
+        default:
+            LOG(Error) << "oh, this should not happen" << std::endl;
         }
 
         ++m_cycle;
@@ -272,13 +271,19 @@ namespace yn
         m_dataAddrIncrement = 1;
         //mask
         m_greyscaleMode = false;
-        m_showBackground = m_showSprites = m_hideEdgeBackground = m_hideEdgeSprites = true;
-
-        m_dataAddress = m_cycle = m_scanline = m_spriteDataAddress = m_fineXScroll = 0;
+        m_showBackground = m_showSprites = m_evenFrame = true;
+        m_vblank = false;
+        m_dataAddress = m_cycle = m_scanline = m_spriteDataAddress = m_fineXScroll = m_tempAddress = 0;
+        m_firstWrite = true;
 
         m_pipelineState = State::PreRender;
         m_scanlineSprites.reserve(8);
         m_scanlineSprites.resize(0);
+    }
+
+    void PPU::setCallback(std::function<void(void)> callback)
+    {
+        m_vblankCallback = callback;
     }
 
     void PPU::doDMA(const Byte *page_ptr)
@@ -298,9 +303,9 @@ namespace yn
         m_spPageHigh = ctrl & 0x08;
 
         if (ctrl & 0x04)
-            m_dataAddrIncrement = 1;
-        else
             m_dataAddrIncrement = 0x20;
+        else
+            m_dataAddrIncrement = 0x1;
 
         m_tempAddress &= ~0x0c00;
         m_tempAddress |= (ctrl & 0x3) << 10;
@@ -322,7 +327,7 @@ namespace yn
 
     void PPU::setOAMData(Byte value)
     {
-        m_spriteMemory[m_spriteDataAddress] = value;
+        m_spriteMemory[m_spriteDataAddress++] = value;
     }
 
     void PPU::setDataAddress(Byte addr)
@@ -335,8 +340,8 @@ namespace yn
         else
         {
             m_tempAddress &= 0xff00;
-            m_tempAddress != addr;
-            m_dataAddress = true;
+            m_tempAddress |= addr;
+            m_dataAddress = m_tempAddress;
         }
         m_firstWrite = !m_firstWrite;
     }
@@ -352,9 +357,8 @@ namespace yn
         else
         {
             m_tempAddress &= ~0x73e0;
-            m_tempAddress != (scroll & 0x07) << 12;
-            m_tempAddress != (scroll & 0xc0) << 8;
-            m_tempAddress != (scroll & 0x38) << 5;
+            m_tempAddress |= ((scroll & 0x7) << 12) |
+                             ((scroll & 0xf8) << 2);
         }
         m_firstWrite = !m_firstWrite;
     }
@@ -367,8 +371,8 @@ namespace yn
 
     Byte PPU::getStatus()
     {
-        Byte status = m_spZreoHit << 6 | m_vbank << 7;
-        m_vbank = false;
+        Byte status = m_spZreoHit << 6 | m_vblank << 7;
+        m_vblank = false;
         m_firstWrite = true;
         return status;
     }

@@ -32,6 +32,7 @@ namespace yn
         bool setMapper(Mapper *mapper);
         bool setWriteCallback(IORegister reg,std::function<void(Byte)> callback);
         bool setReadCallback(IORegister reg,std::function<Byte(void)> callback);
+        Byte* getPagePtr(Byte page);
 
     private:
         Byte m_internalRam[0x800];

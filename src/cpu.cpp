@@ -12,19 +12,53 @@ namespace yn
 
     void Cpu::interrupt(InterruptType type)
     {
-        //TODO
+        if (f_I && type != NMI && type != BRK_)
+            return;
+
+        if (type == BRK_)
+            ++r_PC;
+
+        pushStack(r_PC >> 8);
+        pushStack(r_PC);
+
+        Byte flags = f_N << 7 |
+                     f_V << 6 |
+                     1 << 5 |              //unused bit, supposed to be always 1
+                     (type == BRK_) << 4 | //B flag set if BRK
+                     f_D << 3 |
+                     f_I << 2 |
+                     f_Z << 1 |
+                     f_C;
+        pushStack(flags);
+
+        f_I = true;
+
+        switch (type)
+        {
+        case IRQ:
+        case BRK_:
+            r_PC = readAddress(IRQVector);
+            break;
+        case NMI:
+            r_PC = readAddress(NMIVector);
+            break;
+        default:
+            LOG(Error) << "unexpected interrupt type;" << std::endl;
+        }
+
+        m_skipCycles += 7;
     }
 
     void Cpu::reset()
     {
-        reset(ResetVector);
+        reset(readAddress(ResetVector));
     }
 
     void Cpu::reset(Address addr)
     {
         r_A = r_X = r_Y = 0;
         m_cycles = 0;
-        m_skipCycles = 8;
+        m_skipCycles = 0;
         f_I = true;
         f_C = f_D = f_N = f_N = f_V = false;
         r_PC = addr;
@@ -60,14 +94,16 @@ namespace yn
                 << "Y:" << std::setw(2) << +r_Y << " "
                 << "P:" << std::setw(2) << r_p << " "
                 << "SP:" << std::setw(2) << +r_SP << /*std::endl;*/ " "
-                << "CYC:" << std::setw(3) << std::setfill(' ') << std::dec << (m_cycles - 1) 
+                << "CYC:" << std::setw(3) << std::setfill(' ') << std::dec << (m_cycles - 1)
                 << std::endl;
 
         Byte opcode = m_bus.read(r_PC++);
         int requireCycles = OperationCycles[opcode];
 
-        if (requireCycles && (executeImplied(opcode) || executeType1(opcode) ||
-                              executeBranch(opcode) || executeType2(opcode) || executeType0(opcode)))
+        if (requireCycles && (executeImplied(opcode) ||
+                              executeBranch(opcode) || 
+                              executeType1(opcode) || 
+                              executeType2(opcode) || executeType0(opcode)))
         {
             m_skipCycles += requireCycles;
         }
@@ -75,6 +111,12 @@ namespace yn
         {
             LOG(Error) << "Can't recognise opcode: " << std::hex << +opcode << std::endl;
         }
+    }
+
+    void Cpu::skipDMACycles()
+    {
+        m_skipCycles += 513;            //256 read + 256 write + 1 dummy read
+        m_skipCycles += (m_cycles & 1); //+1 if on odd cycle
     }
 
     bool Cpu::executeType0(Byte opcode)
@@ -215,6 +257,7 @@ namespace yn
                     setPageCrossed(location, location + r_X);
                 }
                 location += r_X;
+                break;
             case AbsoluteY:
                 location = readAddress(r_PC);
                 r_PC += 2;
@@ -461,7 +504,7 @@ namespace yn
             if (branch)
             {
                 ++m_skipCycles;
-                Byte offset = m_bus.read(r_PC++); // TODO: whether plus pc
+                int8_t offset = m_bus.read(r_PC++); // TODO: whether plus pc
                 Address new_PC = r_PC + offset;
                 setPageCrossed(r_PC, new_PC, 2);
                 r_PC = new_PC;
@@ -673,6 +716,6 @@ namespace yn
 
     Address Cpu::readAddress(Address addr)
     {
-        return m_bus.read(addr) | (m_bus.read(addr + 1) & 0xff) << 8;
+        return m_bus.read(addr) | m_bus.read(addr + 1) << 8;
     }
 } // namespace yn

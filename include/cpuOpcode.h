@@ -4,9 +4,9 @@
 namespace yn
 {
     // interrupt vector
-    const auto NMIVector = 0xfffc;
+    const auto NMIVector = 0xfffa;
     const auto IRQVector = 0xfffe;
-    const auto ResetVector = 0xfffa;
+    const auto ResetVector = 0xfffc;
 
     // judge operation
     const auto InstructionTypeMask = 0x3;

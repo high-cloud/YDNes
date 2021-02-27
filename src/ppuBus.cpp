@@ -57,6 +57,11 @@ namespace yn
         {
             return m_palette[addr & 0x1f];
         }
+        else
+        {
+            LOG(Error)<<"not expect read address."<<std::endl;
+        }
+        return 0;
     }
 
     Byte PpuBus::readPalette(Byte paletteAddr)

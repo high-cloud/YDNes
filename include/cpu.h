@@ -24,6 +24,7 @@ namespace yn
         void reset();
         void reset(Address addr);
         void step();
+        void skipDMACycles();
 
     private:
         bool executeType0(Byte opcode);
