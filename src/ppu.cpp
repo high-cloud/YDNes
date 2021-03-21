@@ -124,7 +124,7 @@ namespace yn
                             addr |= (tile & 1) << 12;
                         }
 
-                        sprColor = (read(addr) >> (x_shift)) & 1;             //bit 0
+                        sprColor |= (read(addr) >> (x_shift)) & 1;             //bit 0
                         sprColor |= ((read(addr + 8) >> (x_shift)) & 1) << 1; //bit 1
 
                         if (!(sprOpaque == sprColor))

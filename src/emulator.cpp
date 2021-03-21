@@ -13,12 +13,14 @@ namespace yn
 
     Emulator::Emulator() : m_cpu(m_cpuBus),
                            m_ppu(m_ppuBus, m_screen),
-                           m_pixelSize(2.0f),
+                           m_pixelSize(6.0f),
                            m_cycleTimer(),
                            m_cpuCycleDuration(std::chrono::nanoseconds(559))
     {
         if (!m_cpuBus.setReadCallback(IORegister::PPUSTATUS, [&](void) { return m_ppu.getStatus(); }) ||
             !m_cpuBus.setReadCallback(IORegister::PPUDATA, [&](void) { return m_ppu.getData(); }) ||
+            !m_cpuBus.setReadCallback(IORegister::JOY1, [&](void) { return m_controller1.read(); }) ||
+            !m_cpuBus.setReadCallback(IORegister::JOY2, [&](void) { return m_controller2.read(); }) ||
             !m_cpuBus.setReadCallback(IORegister::OAMDATA, [&](void) { return m_ppu.getOAMData(); }))
         {
             LOG(Error) << "Critical error: failed to set IO read callbacks" << std::endl;
@@ -31,6 +33,7 @@ namespace yn
             !m_cpuBus.setWriteCallback(IORegister::PPUDATA, [&](Byte b) { m_ppu.setData(b); }) ||
             !m_cpuBus.setWriteCallback(IORegister::OAMDATA, [&](Byte b) { m_ppu.setOAMData(b); }) ||
             !m_cpuBus.setWriteCallback(IORegister::OAMADDR, [&](Byte b) { m_ppu.setOAMAddress(b); }) ||
+            !m_cpuBus.setWriteCallback(IORegister::JOY1, [&](Byte b) { m_controller1.write(b);m_controller2.write(b); }) ||
             !m_cpuBus.setWriteCallback(IORegister::OAMDMA, [&](Byte b) { DMA(b); }))
         {
             LOG(Error) << "Critical error: failed to set IO write callbacks" << std::endl;
@@ -69,8 +72,8 @@ namespace yn
         m_window.setVerticalSyncEnabled(true);
         m_screen.create(NESwidth, NESheight, m_pixelSize, sf::Color::White.toInteger());
 
-        m_cycleTimer=std::chrono::high_resolution_clock::now();
-        m_elapsedTime=m_cycleTimer-m_cycleTimer;
+        m_cycleTimer = std::chrono::high_resolution_clock::now();
+        m_elapsedTime = m_cycleTimer - m_cycleTimer;
 
         sf::Event event;
         while (m_window.isOpen())
@@ -104,5 +107,11 @@ namespace yn
             m_window.draw(m_screen.vertices());
             m_window.display();
         }
+    }
+
+    void Emulator::setKeyBindings(std::vector<sf::Keyboard::Key> &keys1, std::vector<sf::Keyboard::Key> &keys2)
+    {
+        m_controller1.setKeyBindings(keys1);
+        m_controller2.setKeyBindings(keys2);
     }
 } // namespace yn

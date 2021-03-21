@@ -3,7 +3,9 @@
 
 namespace yn
 {
-    CpuBus::CpuBus()
+    CpuBus::CpuBus():
+        m_internalRam(0x800,0),
+        m_mapper(nullptr)
     {
     }
 
@@ -80,7 +82,7 @@ namespace yn
         }
         else if (addr < 0x4020)
         { // IO registers
-        auto it = m_writeCallbacks.find(static_cast<IORegister>(addr & 0x2007));
+        auto it = m_writeCallbacks.find(static_cast<IORegister>(addr));
             if (it != m_writeCallbacks.end())
             {
                 return (it->second)(value);

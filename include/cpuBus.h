@@ -35,7 +35,7 @@ namespace yn
         Byte* getPagePtr(Byte page);
 
     private:
-        Byte m_internalRam[0x800];
+        std::vector<Byte> m_internalRam;
         std::vector<Byte> m_VRAM;
         
         Mapper *m_mapper;
