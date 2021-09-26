@@ -136,6 +136,9 @@ namespace yn
                         sprColor |= 0x10;
                         sprColor |= (attribute & 0x3) << 2; // bits 2-3
 
+
+                        // try add this to see if bug be gone
+                        spriteForeGround=!(attribute &0x20);
                         // sprite 0 detection
                         if (!m_spZreoHit && m_showBackground && i == 0 && sprOpaque && bgOpaque)
                         {
@@ -348,7 +351,7 @@ namespace yn
 
     void PPU::setScroll(Byte scroll)
     {
-        if (!m_firstWrite)
+        if (m_firstWrite)
         {
             m_tempAddress &= ~0x001f;
             m_tempAddress |= scroll >> 3;
