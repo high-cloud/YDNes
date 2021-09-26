@@ -110,13 +110,6 @@ namespace yn
 
             while (m_window.pollEvent(event))
             {
-                if (sf::Keyboard::isKeyPressed(sf::Keyboard::S))
-                    LOG(Info) << "s key isKeypressed" << std::endl;
-
-                if (event.type == sf::Event::KeyPressed && event.key.code == sf::Keyboard::S)
-                    LOG(Info) << "s key pressed" << std::endl;
-
-
 
                 if (event.type == sf::Event::Closed ||
                     (event.type == sf::Event::KeyPressed && event.key.code == sf::Keyboard::Escape))

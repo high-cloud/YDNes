@@ -88,7 +88,7 @@ namespace yn
                 return (it->second)(value);
             }
             else
-                LOG(Info) << "NO write callback for IO register at " << std::hex << +addr << std::endl;
+                LOG(Debug) << "NO write callback for IO register at " << std::hex << +addr << std::endl;
         }
         else if (addr < 0x6000)
         {

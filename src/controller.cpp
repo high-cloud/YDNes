@@ -36,8 +36,7 @@ namespace yn
             for (int button = 0; button < 8; ++button)
             {
                 m_data |= (sf::Keyboard::isKeyPressed(m_keyBindings[button]) << shift);
-                // if (sf::Keyboard::isKeyPressed(sf::Keyboard::Enter))
-                //     Log::get().setLevel(CpuTrace);
+
                 ++shift;
             }
         }

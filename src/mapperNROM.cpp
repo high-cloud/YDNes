@@ -42,7 +42,7 @@ namespace yn
                 return m_cartrige.getVROM()[addr];
             }
         }
-        else if (addr > 0x8000)
+        else if (addr >= 0x8000)
         {
             if (m_oneBank)
             {
@@ -55,6 +55,7 @@ namespace yn
         }
         else
         {
+            LOG(Debug)<<std::hex<<"mapper read address 0x"<<addr<<std::endl;
             LOG(Error) << "mapper read out of range" << std::endl;
         }
 

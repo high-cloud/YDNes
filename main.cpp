@@ -38,7 +38,7 @@ int main()
     Emulator emulator;
     emulator.setKeyBindings(p1, p2);
     
-    emulator.run("E:/cpp_project/YDNes/nestest.nes");
+    emulator.run("E:/cpp_project/YDNes/smb.nes");
 
     return 0;
 }
