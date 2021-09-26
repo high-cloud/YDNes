@@ -95,8 +95,8 @@ namespace yn
                         if (0 > x - spr_x || x - spr_x >= 8)
                             continue;
 
-                        Byte spr_y = m_spriteMemory[4 * i + 0] + 1,
-                             tile = m_spriteMemory[4 * i + 1],
+                        Byte spr_y = m_spriteMemory[i * 4 + 0] + 1,
+                             tile = m_spriteMemory[i * 4 + 1],
                              attribute = m_spriteMemory[i * 4 + 2];
 
                         int length = (m_longSprites) ? 16 : 8;
@@ -106,8 +106,8 @@ namespace yn
 
                         if ((attribute & 0x40) == 0) //if not flipping horizontally
                             x_shift ^= 7;
-                        if ((attribute & 80) != 0)
-                            y_offset ^= length - 1;
+                        if ((attribute & 0x80) != 0)
+                            y_offset ^= (length - 1);
 
                         Address addr = 0;
 
@@ -124,10 +124,10 @@ namespace yn
                             addr |= (tile & 1) << 12;
                         }
 
-                        sprColor |= (read(addr) >> (x_shift)) & 1;             //bit 0
+                        sprColor |= (read(addr) >> (x_shift)) & 1;            //bit 0
                         sprColor |= ((read(addr + 8) >> (x_shift)) & 1) << 1; //bit 1
 
-                        if (!(sprOpaque == sprColor))
+                        if (!(sprOpaque = sprColor))
                         {
                             sprColor = 0;
                             continue;
@@ -136,9 +136,8 @@ namespace yn
                         sprColor |= 0x10;
                         sprColor |= (attribute & 0x3) << 2; // bits 2-3
 
-
                         // try add this to see if bug be gone
-                        spriteForeGround=!(attribute &0x20);
+                        spriteForeGround = !(attribute & 0x20);
                         // sprite 0 detection
                         if (!m_spZreoHit && m_showBackground && i == 0 && sprOpaque && bgOpaque)
                         {
@@ -184,7 +183,7 @@ namespace yn
                     m_dataAddress = (m_dataAddress & ~0x03e0) | (y << 5); // put coarse Y back into v
                 }
             }
-            else if (m_cycle == ScanlineVisibleDots + 2&& m_showBackground && m_showSprites)
+            else if (m_cycle == ScanlineVisibleDots + 2 && m_showBackground && m_showSprites)
             {
                 //set bits related to horizontal position
                 m_dataAddress &= ~0x041f;
