@@ -141,12 +141,12 @@ namespace yn
                 break;
             case IndexedXorY:
             {
-                Byte index;
-                if (op == LDX || op == STX)
-                    index = r_Y;
-                else
-                    index = r_X;
-                location = (m_bus.read(r_PC++) + index) & 0xff;
+                // Byte index;
+                // if (op == LDX || op == STX)
+                //     index = r_Y;
+                // else
+                //     index = r_X;
+                location = (m_bus.read(r_PC++) + r_X) & 0xff;
             }
             break;
             case AbsoluteXorY:
@@ -154,10 +154,10 @@ namespace yn
                 location = readAddress(r_PC);
                 r_PC += 2;
                 Byte index;
-                if (op == LDX || op == STX)
-                    index = r_Y;
-                else
-                    index = r_X;
+                // if (op == LDX || op == STX)
+                //     index = r_Y;
+                // else
+                //     index = r_X;
                 if (op == LDX)
                     setPageCrossed(index + location, location);
                 location += r_X;
@@ -561,9 +561,9 @@ namespace yn
                     index = r_Y;
                 else
                     index = r_X;
-                if (op == LDX)
-                    setPageCrossed(index + location, location);
-                location += r_X;
+                // if (op == LDX)
+                setPageCrossed(index + location, location);
+                location += index;
             }
             break;
             case Accumulator:

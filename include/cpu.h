@@ -26,6 +26,11 @@ namespace yn
         void step();
         void skipDMACycles();
 
+        // FOR debug
+        int getCycle(){
+            return m_cycles;
+        }
+
     private:
         bool executeType0(Byte opcode);
         bool executeType1(Byte opcode);

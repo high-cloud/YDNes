@@ -26,7 +26,7 @@ int main()
     if (cpuFile.is_open() && cpuFile.good())
     {
         Log::get().setTraceStream(cpuFile);
-        Log::get().setLevel(CpuTrace);
+        // Log::get().setLevel(CpuTrace);
     }
 
 
@@ -38,7 +38,7 @@ int main()
     Emulator emulator;
     emulator.setKeyBindings(p1, p2);
     
-    emulator.run("D:/cpp_project/YDNes/nestest.nes");
+    emulator.run("E:/cpp_project/YDNes/nestest.nes");
 
     return 0;
 }

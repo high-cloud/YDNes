@@ -172,6 +172,9 @@ namespace yn
                 return &m_VRAM[addr - 0x6000];
             }
         }
+            
+        return nullptr;
+
     }
 
 } // namespace yn
